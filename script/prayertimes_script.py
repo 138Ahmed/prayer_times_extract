@@ -1,7 +1,27 @@
+import sys
 import pandas as pd
+
 
 # Read the prayer times csv file
 df = pd.read_csv('../data/prayertimes.csv')
+
+def check_time_format(num_of_time_columns, col_start, col_end):
+    # num_of_time_columns: number of time columns in df
+    # Col_start: index of first time column
+    # Col_end: index of last time column + 1
+    count_errors = 0
+    for i in range(num_of_time_columns):
+        # Convert df to Series and use regex to check if time format is correct. If correct contiue.
+        if  sum(df.iloc[:,col_start:col_end].squeeze().str.fullmatch(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$') == False) == 0:
+            continue
+        else:
+            count_errors += 1
+            print('Time format is incorrect in column ' + df.iloc[:,col_start:col_end].columns + '. Expected format is 00:00')
+        col_start += 1
+        col_end += 1
+    # If there are errors exit the script
+    if count_errors > 0:
+        sys.exit("Error Code 1: Exiting due to incorrect time format")
 
 ########### Functions ###########
 # # get the month name in 3 letter format
@@ -32,6 +52,24 @@ def check_if_2_digits(series):
             series[i] = '0' + series[i]
     return series
 
+def check_time_format(num_of_time_columns, col_start, col_end):
+    # num_of_time_columns: number of time columns in df
+    # Col_start: index of first time column
+    # Col_end: index of last time column + 1
+    count_errors = 0
+    for i in range(num_of_time_columns):
+        # Convert df to Series and use regex to check if time format is correct. If correct contiue.
+        if  sum(df.iloc[:,col_start:col_end].squeeze().str.fullmatch(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$') == False) == 0:
+            continue
+        else:
+            count_errors += 1
+            print('Time format is incorrect in column ' + df.iloc[:,col_start:col_end].columns + '. Expected format is 00:00')
+        col_start += 1
+        col_end += 1
+    # If there are errors exit the script
+    if count_errors > 0:
+        sys.exit("Error Code 1: Exiting due to incorrect time format")
+
 ########### Variables ###########
 
 # get the column names for the morning times
@@ -44,6 +82,9 @@ time_column_names = df.iloc[:, 3:].columns
 month = get_month_name(df)
 
 ########### Main ###########
+
+# check if time format is correct else exit script
+check_time_format(10,3,4)
 
 # add AM to the morning times and PM to the evening times
 for name in time_column_names:
@@ -68,7 +109,18 @@ df.drop(df.columns[2], axis=1, inplace=True)
 df.drop(df.columns[1], axis=1, inplace=True)
 
 # print the dataframe
-print(df)
+#print(df)
 
-# export df to text file with delimeter as --
+# export df to text file with delimeter as -
 df.to_csv('../export/prayertimes_final.txt', sep='-', index=False)
+
+# Read the file in to memory (if file is large will give memory error)
+with open('../export/prayertimes_final.txt', 'r') as file :
+  filedata = file.read()
+
+# Replace the target string
+filedata = filedata.replace('-', '--')
+
+# Write the file out again
+with open('../export/prayertimes_final.txt', 'w') as file:
+  file.write(filedata)
