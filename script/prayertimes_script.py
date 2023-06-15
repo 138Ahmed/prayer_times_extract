@@ -5,24 +5,6 @@ import pandas as pd
 # Read the prayer times csv file
 df = pd.read_csv('../data/prayertimes.csv')
 
-def check_time_format(num_of_time_columns, col_start, col_end):
-    # num_of_time_columns: number of time columns in df
-    # Col_start: index of first time column
-    # Col_end: index of last time column + 1
-    count_errors = 0
-    for i in range(num_of_time_columns):
-        # Convert df to Series and use regex to check if time format is correct. If correct contiue.
-        if  sum(df.iloc[:,col_start:col_end].squeeze().str.fullmatch(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$') == False) == 0:
-            continue
-        else:
-            count_errors += 1
-            print('Time format is incorrect in column ' + df.iloc[:,col_start:col_end].columns + '. Expected format is 00:00')
-        col_start += 1
-        col_end += 1
-    # If there are errors exit the script
-    if count_errors > 0:
-        sys.exit("Error Code 1: Exiting due to incorrect time format")
-
 ########### Functions ###########
 # # get the month name in 3 letter format
 def get_month_name(dataframe):
